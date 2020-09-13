@@ -1,0 +1,133 @@
+---
+title: "STAT6443_Homework1"
+author: "Victoria Espinola"
+date: "9/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+cars_test<-read_csv("~/Desktop/CARS.csv")
+```
+#Desciptive Statistics 
+
+##This will show the new variable MPG_Combo and its box plot. 
+```{r}
+cars_test['MPG_Combo']<- cars_test['MPG_City']*.55 + cars_test['MPG_City']*.45
+print(head(cars_test))
+```
+
+```{r}
+boxplot(cars_test$MPG_Combo)
+```
+
+###a) This box plot shows that the fuel efficiencies are symmetric with a one low value outlier and 8 high valued outliers. 
+
+```{r}
+boxplot(MPG_Combo~Type,
+        data=cars_test,
+        main="MPG_Combo for each Type",
+        xlab="Type",
+        ylab="MGP_Combo",
+        col="pink",
+        border="green")
+```
+
+###b) The box plots above show that SUV's and trucks have the same median MPG_Combo amounts, followed by sports, sedan, and wagon. Sedan has the largest spread in its data and truck has the smallest spread in its data. 
+
+```{r}
+summary(cars_test$Invoice)
+```
+
+```{r}
+qqnorm(cars_test$Invoice); qqline(cars_test$Invoice, col = 3)
+```
+
+```{r}
+shapiro.test(cars_test$Invoice)
+```
+
+
+###c) The mean > median, so the data is skewed right. The range of the data is 163,685, and the inter quartile range is 16,804. The assumption of normality is not reasonable because the p-value is below 0.5, thus we reject the null hythesis that the Invoice follows normality. Additonally, the qqplot visually shows that the data is away from the normal line (shown in green).
+
+```{r}
+boxplot(Invoice ~ Origin, data=cars_test, main="Invoice by Origin", xlab="Origin", ylab="Invoice")
+
+```
+
+```{r}
+shapiro.test(cars_test$Invoice[cars_test$Origin=="Asia"]);
+
+```
+
+```{r}
+shapiro.test(cars_test$Invoice[cars_test$Origin == "Europe"])
+```
+
+```{r}
+shapiro.test(cars_test$Invoice[cars_test$Origin == "USA"]);
+```
+
+###d) Each of the boxplots above show the data have long right tails, thus we can visually see that normality is not reasonable. Furthermore, the Shapiro-Wilks normality test concludes that the Invoice by Origin does not follow normality because each p-value is below 0.5. 
+
+##Question 2-Hypothesis Testing
+
+###a) Since the results from 1d show that the normality cannot be assumed, we should preform a test for non-normal data. 
+
+###b) Null hypothesis: cars that originate in Europe will have a difference invoice price that those that originate in Asia. Alternative hypothesis: cars that originate in Europe do not have a different invoice price than those that orginate in Asia.
+
+```{r}
+tran_set <- cars_test[cars_test$Origin=="Europe" | cars_test$Origin=="Asia", c("Invoice")]
+```
+
+```{r}
+normalized <- sqrt(tran_set)
+normalized <- unlist(normalized,recursive=TRUE)
+typeof(normalized)
+```
+
+```{r}
+shapiro.test(normalized)
+```
+
+###c) Since the data was normalized using the squareroot transformation, the Shapiro-Wilks test could be applied to this normailized data set. The result show that the 
+
+
+##Question 3: Hypothesis Testing
+```{r}
+summary(airquality)
+```
+
+```{r}
+july<-airquality[airquality$Month==7,c('Wind')]
+aug<-airquality[airquality$Month==8,c('Wind')]
+```
+
+```{r}
+qqnorm(july);qqline(july)
+```
+
+```{r}
+qqnorm(aug);qqline(aug)
+```
+
+```{r}
+shapiro.test(july)
+```
+
+```{r}
+shapiro.test(aug)
+```
+###a) Based on the qqplot and Shapiro-Wilk test for normality, we fail to reject the null hypothesis; both line plots are close to the theoretical quantities and both p-values are greater than .05. Therefore, the test we should perform is the two-sample t-test. 
+
+###b) The null hypothesis is the mean wind speed for July and August are the same.The alternative hypothesis is the mean of either July or August will be greater than the other. 
+
+```{r}
+t.test(july, aug)
+```
+
+###c) Since the p-value is greater than 0.05, we fail to reject the null hypothesis that the mean wind speeds in July and August are the same. 
