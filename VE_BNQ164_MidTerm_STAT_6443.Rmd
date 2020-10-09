@@ -1,0 +1,88 @@
+---
+title: "Mid-Term_STAT6443"
+author: "Victoria Espinola"
+date: "10/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd("~/Desktop/STAT_6443")
+library(DescTools); library(MASS); library(car)
+bweight=read.csv("birthweight.csv", header=TRUE)
+bweight$Black=as.factor(bweight$Black)
+bweight$Married=as.factor(bweight$Married)
+bweight$Boy=as.factor(bweight$Boy)
+bweight$MomSmoke=as.factor(bweight$MomSmoke)
+bweight$Ed=as.factor(bweight$Ed)
+str(bweight)
+```
+
+
+#Exercise 1A: Boxplot for birth weight
+```{r}
+boxplot(bweight$Weight)
+```
+##The data look normal from the boxplot output, but does show outlier points. 
+
+```{r}
+qqnorm(bweight$Weight)
+qqline(bweight$Weight, col="red")
+```
+
+```{r}
+shapiro.test(bweight$Weight)
+```
+
+##The normal qqplot and Shapiro-Wilk test both conclude that that normality assumption is reasonable for the weight variable. 
+
+#Exercise 1B: Boxplot of Weight by MomSmoke
+```{r}
+boxplot(Weight~MomSmoke, data=bweight, main= "Birthweight by Moms who smoke", xlab="Mom Smoke", ylab="Weight")
+```
+##The mean birth weight is greater for babies whose mom did not smoke. The birth weight for mom's who smoke is much closer together than for the weight of babies whose mom did not smoke. The range of the data for moms that did not smoke is greater than for moms who did smoke.
+
+#Exercise 1C: Shapiro-Wilks Test by level of MomSmoke
+```{r}
+shapiro.test(bweight[bweight$MomSmoke=='0', "Weight"])
+```
+```{r}
+shapiro.test(bweight[bweight$MomSmoke=='1', "Weight"])
+```
+##For each level of MomSmoke the normality assumption is reasonable since both p-values are greater than 0.05. 
+
+#Exercise 2: Hypothesis Test
+```{r}
+t.test(bweight$Weight~bweight$MomSmoke)
+```
+##The null hypothesis is there is not difference in the mean birthweights for moms who do not smoke compared to moms who do smoke. The alternative hypothesis is that there is a difference in the mean birthweights for moms who do not smoke compared to moms who do smoke. According to the two-sample t-test, the p-value is 0.002595 which is less than our significance level of 0.05, so we reject the null hypothesis and conclude that there is a difference in birthweight for moms who do not smoke to those that do smoke. 
+
+
+#Exercise 3: One-Way ANOVA
+
+```{r}
+bw.aov<- aov(Weight~MomSmoke, data=bweight)
+summary(bw.aov)
+```
+
+#3A: Homogeneity of variance assumption
+
+```{r}
+leveneTest(Weight~MomSmoke, data=bweight)
+```
+##Since the p-value is greater than 0.05, then the assumption of homogeneity is valid. Since the data shows equal variance, it is ok to perform ANOVA test. 
+
+#Exercise 3B: Post-HOC Test
+```{r}
+TukeyHSD(bw.aov)
+```
+##The null hypothesis is that there is no difference between the birthweights for moms who do not smoke and moms who do smoke. Since the Tukey post-hoc test provides a p-value less than 0.05, we reject the null hypothesis and conclude that one group has a different birthweight. This conclusion supports the conclusion made in Exercise 2. 
+
+```{r}
+
+```
+
+
