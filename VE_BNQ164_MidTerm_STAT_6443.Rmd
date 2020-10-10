@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 setwd("~/Desktop/STAT_6443")
-library(DescTools); library(MASS); library(car)
+library(DescTools); library(MASS); library(car); library(modelr)
 bweight=read.csv("birthweight.csv", header=TRUE)
 bweight$Black=as.factor(bweight$Black)
 bweight$Married=as.factor(bweight$Married)
@@ -43,6 +43,7 @@ shapiro.test(bweight$Weight)
 ```{r}
 boxplot(Weight~MomSmoke, data=bweight, main= "Birthweight by Moms who smoke", xlab="Mom Smoke", ylab="Weight")
 ```
+
 ##The mean birth weight is greater for babies whose mom did not smoke. The birth weight for mom's who smoke is much closer together than for the weight of babies whose mom did not smoke. The range of the data for moms that did not smoke is greater than for moms who did smoke.
 
 #Exercise 1C: Shapiro-Wilks Test by level of MomSmoke
@@ -81,8 +82,51 @@ TukeyHSD(bw.aov)
 ```
 ##The null hypothesis is that there is no difference between the birthweights for moms who do not smoke and moms who do smoke. Since the Tukey post-hoc test provides a p-value less than 0.05, we reject the null hypothesis and conclude that one group has a different birthweight. This conclusion supports the conclusion made in Exercise 2. 
 
+#Exercise 4: ANOVA with Black, Married, Boy, MomSmoke, and Ed variabales. 
 ```{r}
+full= aov(Weight ~ Black + Married +Boy+ MomSmoke+ Ed, data=bweight)
+#summary(full, type=3)
 
 ```
 
+```{r}
+back1= aov(Weight ~ Black + Married+ Boy+ MomSmoke, data=bweight)
+#summary(back1, type=3)
+```
 
+```{r}
+back2= aov(Weight ~ Black + Married + MomSmoke, data=bweight)
+#summary(back2, type=3)
+
+```
+
+```{r}
+back3= aov(Weight ~ Black +  MomSmoke, data=bweight)
+#summary(back3, type=3)
+
+```
+##Exercise 4A: After running the full model, the least significant varabiable is Ed since it has the largest p-value.
+##After running the model without Ed, the least significant variable is Boy since it has the largest p-value.
+##After running the model without Boy, the least significant variable is Married since it has the largest p-value. 
+##After running the model without Married, both variables 'Black' and 'MomSmoke' are less than 0.5, so the model should include 'Black' and 'MomSmoke'. 
+
+```{r}
+final= aov(Weight ~ Black + MomSmoke + Black * MomSmoke, data=bweight)
+#summary (final, type=3)
+```
+
+##Exercise 4B: The final model includes 'Black' and 'MomSmoke'. The interaction effect will not be included because the p-value is greater than 0.05. 
+
+```{r}
+plot(back3,2)
+```
+```{r}
+lm(back3)
+effectsize= rsquare(back3, data=bweight)
+```
+
+```{r}
+ScheffeTest(back3)
+```
+
+##Exercise 4C: Based on the Normal-QQ plot the data is normal. The amount of variation that can be explained by the model is 7.89%, which was calculated by using a linear model and computing the r-squared value. Based on the Scheffe Test, the mean birth weight of a non-black baby will be greater than a black baby and the mean birth weight of a baby whose mom did not smoke will be greater than a baby whose mom did smoke. 
