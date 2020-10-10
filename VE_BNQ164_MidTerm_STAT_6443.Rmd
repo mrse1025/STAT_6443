@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 setwd("~/Desktop/STAT_6443")
-library(DescTools); library(MASS); library(car); library(modelr)
+library(DescTools); library(MASS); library(car)
 bweight=read.csv("birthweight.csv", header=TRUE)
 bweight$Black=as.factor(bweight$Black)
 bweight$Married=as.factor(bweight$Married)
@@ -111,22 +111,24 @@ back3= aov(Weight ~ Black +  MomSmoke, data=bweight)
 ##After running the model without Married, both variables 'Black' and 'MomSmoke' are less than 0.5, so the model should include 'Black' and 'MomSmoke'. 
 
 ```{r}
-final= aov(Weight ~ Black + MomSmoke + Black * MomSmoke, data=bweight)
-#summary (final, type=3)
+final_with_interaction= aov(Weight ~ Black + MomSmoke + Black * MomSmoke, data=bweight)
+#summary (final_with_interaction, type=3)
+
 ```
 
 ##Exercise 4B: The final model includes 'Black' and 'MomSmoke'. The interaction effect will not be included because the p-value is greater than 0.05. 
 
 ```{r}
-plot(back3,2)
+plot(back3,2, col="red")
 ```
 ```{r}
-lm(back3)
-effectsize= rsquare(back3, data=bweight)
+linearmodel <- lm(Weight~ Black + MomSmoke, data=bweight)
+summary(linearmodel)
+
 ```
 
 ```{r}
 ScheffeTest(back3)
 ```
 
-##Exercise 4C: Based on the Normal-QQ plot the data is normal. The amount of variation that can be explained by the model is 7.89%, which was calculated by using a linear model and computing the r-squared value. Based on the Scheffe Test, the mean birth weight of a non-black baby will be greater than a black baby and the mean birth weight of a baby whose mom did not smoke will be greater than a baby whose mom did smoke. 
+##Exercise 4C: Based on the Normal-QQ plot the data is normal. The amount of variation that can be explained by the model is 7.89%, which was calculated by using a linear model and obtaining the R-squared value. Based on the Scheffe Test, the mean birth weight of a non-black baby will be greater than a black baby and the mean birth weight of a baby whose mom did not smoke will be greater than a baby whose mom did smoke. 
